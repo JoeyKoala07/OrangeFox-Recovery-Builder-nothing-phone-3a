@@ -1,5 +1,4 @@
 name: Smoke
-
 on:
   workflow_dispatch:
 
