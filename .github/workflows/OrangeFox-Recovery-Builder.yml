@@ -1,22 +1,21 @@
-    - name: Building OrangeFox
-      shell: bash -e -o pipefail
-      run: |
-        cd "${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}"
+- name: Building OrangeFox
+  shell: bash -e -o pipefail   # OK: no -u here
+  run: |
+    cd "${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}"
 
+    echo "[ls] pwd=$(pwd)"
+    test -f build/envsetup.sh || { echo "Missing build/envsetup.sh"; exit 2; }
+    test -d "${{ github.event.inputs.DEVICE_PATH }}" || { echo "Missing device path: ${{ github.event.inputs.DEVICE_PATH }}"; find device -maxdepth 3 -type d; exit 2; }
 
-        echo "[ls] pwd=$(pwd)"
-        test -f build/envsetup.sh || { echo "Missing build/envsetup.sh"; exit 2; }
-        test -d "${{ github.event.inputs.DEVICE_PATH }}" || { echo "Missing device path: ${{ github.event.inputs.DEVICE_PATH }}"; find device -maxdepth 3 -type d; exit 2; }
+    # Disable nounset for sourcing; re-enable right after
+    set +u
+    source build/envsetup.sh
+    set -u || true
 
-        # AOSP envsetup trips on 'set -u', so temporarily disable it
-        set +u
-        source build/envsetup.sh
-        set -u || true
+    export ALLOW_MISSING_DEPENDENCIES=true
 
-        export ALLOW_MISSING_DEPENDENCIES=true
+    test -f "${{ github.event.inputs.DEVICE_PATH }}/vendorsetup.sh" || {
+      echo "Expected vendorsetup.sh at ${{ github.event.inputs.DEVICE_PATH }}/vendorsetup.sh"; exit 3;
+    }
 
-        test -f "${{ github.event.inputs.DEVICE_PATH }}/vendorsetup.sh" || {
-          echo "Expected vendorsetup.sh at ${{ github.event.inputs.DEVICE_PATH }}/vendorsetup.sh"; exit 3;
-        }
-
-        ${{ steps.fox_branch.outputs.value }}
+    ${{ steps.fox_branch.outputs.value }}
