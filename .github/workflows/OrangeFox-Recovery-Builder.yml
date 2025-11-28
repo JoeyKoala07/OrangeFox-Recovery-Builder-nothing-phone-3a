@@ -1,7 +1,8 @@
     - name: Building OrangeFox
-      shell: bash
+      shell: bash -e -o pipefail
       run: |
         cd "${GITHUB_WORKSPACE}/OrangeFox/fox_${{ github.event.inputs.MANIFEST_BRANCH }}"
+
 
         echo "[ls] pwd=$(pwd)"
         test -f build/envsetup.sh || { echo "Missing build/envsetup.sh"; exit 2; }
