@@ -8,5 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Say hello
-        run: |
-          echo "Actions are working."
+        run: echo "Actions are working."
